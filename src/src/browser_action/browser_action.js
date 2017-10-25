@@ -4,28 +4,44 @@
  */
 
 $(() => {
-  chrome.runtime.sendMessage({action: 'siteInfo'}, breaches => {
-    if (!breaches || breaches.length === 0) {
+  chrome.runtime.sendMessage({action: 'siteInfo'}, response => {
+    if (!response || response.breaches.length === 0) {
       return;
     }
 
     let breachHTML = '';
 
-    for (let breach of breaches) {
-      if (breachHTML) {
-        breachHTML += '<hr/>';
-      }
-      else {
-        breachHTML += html`<h2>${breach['Domain']}</h2>`;
+    for (let breach of response.breaches) {
+      if (!breachHTML) {
+        breachHTML += html`
+          <h2>
+            ${response.favicon
+              ? html`<img src="${response.favicon}" style="height:1em;vertical-align:text-top">`
+              : ''}
+            ${breach['Domain']}
+          </h2>
+        `;
       }
 
       breachHTML += html`
-      <h3>${breach['Title']}</h3>
-      <h4>${breach['PwnCount'].toLocaleString()} accounts pwned</h4>
-      <p>${breach['Description']}</p>
-      Compromised data: ${breach['DataClasses'].join(', ')}
+        <h3>
+          <a target="_blank" href="https://haveibeenpwned.com/PwnedWebsites#${breach['Name']}">
+            ${breach['Title']}
+          </a>
+        </h3>
+        <h4>${breach['PwnCount'].toLocaleString()} accounts pwned</h4>
+        <p>${breach['Description']}</p>
+        <p>Compromised data: ${breach['DataClasses'].join(', ')}</p>
+        <hr/>
       `;
     }
+
+    breachHTML += `
+      <p style="text-align:center">
+        Register to be notified when <em>your</em> account is pwned at<br>
+        <a target="_blank" href="https://haveibeenpwned.com/">haveibeenpwned.com</a>
+      </p>
+    `
 
     $('#mainPopup').html(breachHTML);
   });

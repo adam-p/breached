@@ -1,13 +1,14 @@
 {
   "name": "Breached",
-  "version": "0.0.1",
+  "version": "1.0.1",
   "manifest_version": 2,
-  "description": "Indicates if the current website has been breached in the past. Uses haveibeenpwned.com",
+  "description": "Find out which sites you're visiting have been pwned, using the haveibeenpwned.com database",
   "homepage_url": "https://github.com/adam-p/breached",
   "icons": {
     "16": "icons/icon16.png",
     "48": "icons/icon48.png",
-    "128": "icons/icon128.png"
+    "128": "icons/icon128.png",
+    "256": "icons/icon256.png"
   },
   "background": {
     "scripts": [
@@ -17,7 +18,13 @@
     "persistent": false
   },
   "browser_action": {
-    "default_icon": "icons/icon19.png",
+    "default_icon": {
+      "16": "icons/icon16.png",
+      "19": "icons/icon19.png",
+      "32": "icons/icon32.png",
+      "48": "icons/icon48.png",
+      "64": "icons/icon64.png"
+    },
     "default_title": "Breached?",
     "default_popup": "src/browser_action/browser_action.html"
   },

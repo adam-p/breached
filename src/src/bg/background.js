@@ -7,7 +7,7 @@
 
 // Watch for tab loads, so we can update the button.
 chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
-  if (changeInfo.status === 'complete' && tab.active) {
+  if (changeInfo.status === 'loading') {
     // Initially disable the button.
     chrome.browserAction.disable(tabId);
 
@@ -102,6 +102,7 @@ function lookUpURL(url, callback) {
   });
 }
 
+// Listen for requests from the browser action popup to get info about a site.
 chrome.runtime.onMessage.addListener((request, sender, responseCallback) => {
   if (request.action === 'siteInfo') {
     // We've received a request for breach info.
@@ -112,7 +113,16 @@ chrome.runtime.onMessage.addListener((request, sender, responseCallback) => {
         return;
       }
 
-      lookUpURL(tabs[0].url, responseCallback);
+      lookUpURL(tabs[0].url, response => {
+        // We need to add a bit more to the response, so create an object.
+        let responseObj = {
+          favicon: tabs[0].favIconUrl,
+          breaches: response
+        };
+
+        responseCallback(responseObj);
+      });
+
     });
 
     // Indicate an async callback.
