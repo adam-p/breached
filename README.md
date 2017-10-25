@@ -8,7 +8,7 @@ Breached uses [Have I Been Pwned](https://haveibeenpwned.com/) to learn about br
 
 **[Chrome Web Store](https://chrome.google.com/webstore/detail/breached/blmhfhlpjoofplegjpalpgnbnnoohpbc)**
 
-**[Firefox Add-ons](https://addons.mozilla.org/en-US/firefox/addon/breached/)**
+**[Firefox Add-ons](https://addons.mozilla.org/addon/breached/)**
 
 ## TODO
 
