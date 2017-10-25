@@ -1,6 +1,12 @@
 Change Log
 ==========
 
+2017-10-24: v1.1.0
+------------------
+
+* Added notifications. The enabling and badging of the toolbar button weren't visible enough. Also, users couldn't be blamed for hiding the toolbar button. The notification does a better job bringing a attention to a breached site. It's only being shown once for a domain (unless there's a new breach), so it shouldn't be too annoying.
+
+
 2017-10-24: v1.0.1
 ------------------
 

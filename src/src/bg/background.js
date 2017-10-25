@@ -6,18 +6,28 @@
 "use strict";
 
 // Watch for tab loads, so we can update the button.
-chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
+chrome.tabs.onUpdated.addListener(tabUpdated);
+
+/**
+ * Called when a tab is updated. If the tab is loading we will update the browser action button.
+ * @param {integer} tabId
+ * @param {object} changeInfo
+ * @param {object} tab
+ */
+function tabUpdated(tabId, changeInfo, tab) {
   if (changeInfo.status === 'loading') {
     // Initially disable the button.
     chrome.browserAction.disable(tabId);
 
     lookUpURL(tab.url, breaches => {
-      if (breaches) {
+      if (breaches && breaches.length > 0) {
         // There are breaches! Enable the button.
         chrome.browserAction.setTitle({title: 'Breached!', tabId: tabId});
         chrome.browserAction.setBadgeText({text: String(breaches.length), tabId: tabId});
         chrome.browserAction.setBadgeBackgroundColor({color: '#FF0000', tabId: tabId})
         chrome.browserAction.enable(tabId);
+
+        showNotification(breaches);
       }
       else {
         // No breaches.
@@ -29,7 +39,66 @@ chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
 
     updateDB();
   }
-});
+}
+
+// Listen for notification clicks and open the appropriate info page.
+chrome.notifications.onClicked.addListener(notificationClicked);
+
+/**
+ * Notification click handler. Will open the appropriate web page.
+ * @param {string} notificationId Is set the "name" of the breach.
+ */
+function notificationClicked(notificationId) {
+  if (notificationId) {
+    chrome.tabs.create({url: `https://haveibeenpwned.com/PwnedWebsites#${notificationId}`});
+  }
+}
+
+/**
+ * Shows a notification regarding breaches for a current page. Only shows a notification for a site once.
+ * @param {object[]} breaches Breach information for the notification.
+ */
+function showNotification(breaches) {
+  if (!breaches || breaches.length === 0) {
+    return;
+  }
+
+  // We only want to show a notification once for each affected domain, unless the breach info changes for it.
+  let notificationKey = `${breaches[0]['Domain']}_${breaches.length}`;
+  chrome.storage.local.get('notifications', res => {
+    if (res.notifications && res.notifications[notificationKey]) {
+      // We've already shown a notification for this domain and breach state.
+      return;
+    }
+
+    // Flag that we've shown this notification.
+    res[notificationKey] = true;
+    chrome.storage.local.set({notifications: res});
+
+    // Show the notification.
+    let totalPwned = 0;
+    for (let breach of breaches) {
+      totalPwned += breach['PwnCount'];
+    }
+
+    let message = '';
+    if (breaches.length === 1) {
+      message = `This site was breached once, with ${totalPwned.toLocaleString()} accounts pwned.\n\nClick here or on the toolbar button for more information.`;
+    }
+    else {
+      message = `This site was breached ${breaches.length} times, with ${totalPwned.toLocaleString()} accounts pwned.\n\nClick here or on the toolbar button for more information.`;
+    }
+
+    let opt = {
+      type: 'basic',
+      title: `${breaches[0]['Domain']} has breach history`,
+      message: message,
+      contextMessage: 'Data from haveibeenpwned.com',
+      iconUrl: '/icons/icon64.png'
+    };
+    chrome.notifications.create(breaches[0]['Name'], opt);
+  });
+}
 
 /**
  * Check if the breach DB is current. Start an update if it's not.
@@ -74,8 +143,8 @@ function updateDB() {
 /**
  * Look up a URL's hostname in the breach DB. If it's not found, null is passed to
  * callback. Otherwise an array of breaches is passed.
- * @param {string} url
- * @param {function(object[])} callback
+ * @param {string} url The URL to look up in the breach DB
+ * @param {function(object[])} callback Will be called with the lookup results. Passed null if no match, otherwise an array of breaches.
  */
 function lookUpURL(url, callback) {
   // We're going to try to match against the full hostname, and then one piece shorter, etc. (but not the TLD).
@@ -103,7 +172,16 @@ function lookUpURL(url, callback) {
 }
 
 // Listen for requests from the browser action popup to get info about a site.
-chrome.runtime.onMessage.addListener((request, sender, responseCallback) => {
+chrome.runtime.onMessage.addListener(messageListener);
+
+/**
+ * Receives messages from the browser action popup, requesting breach info to display.
+ * @param {*} request
+ * @param {*} sender
+ * @param {*} responseCallback
+ * @returns {boolean} true if this is asynchronous.
+ */
+function messageListener(request, sender, responseCallback) {
   if (request.action === 'siteInfo') {
     // We've received a request for breach info.
     chrome.tabs.query({active: true, currentWindow: true}, tabs => {
@@ -130,7 +208,7 @@ chrome.runtime.onMessage.addListener((request, sender, responseCallback) => {
   }
 
   return false;
-});
+}
 
 // Disable immediately, until tabs start loading.
 chrome.browserAction.disable();

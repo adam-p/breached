@@ -1,6 +1,6 @@
 {
   "name": "Breached",
-  "version": "1.0.1",
+  "version": "1.1.0",
   "manifest_version": 2,
   "description": "Find out which sites you're visiting have been pwned, using the haveibeenpwned.com database",
   "homepage_url": "https://github.com/adam-p/breached",
@@ -29,6 +29,6 @@
     "default_popup": "src/browser_action/browser_action.html"
   },
   "permissions": [
-    "storage", "tabs"
+    "storage", "tabs", "notifications"
   ]
 }
