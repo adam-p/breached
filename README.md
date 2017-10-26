@@ -10,6 +10,16 @@ Breached uses [Have I Been Pwned](https://haveibeenpwned.com/) to learn about br
 
 **[Firefox Add-ons](https://addons.mozilla.org/addon/breached/)**
 
+## Screenshots
+
+Browser toolbar button indicates if the site has breaches. Clicking on it shows details.
+
+![screenshot of popup](https://raw.github.com/adam-p/breached/master/assets/screenshot1.png)
+
+A notification will be shown when a breached site is visited. Don't worry, it'll only be shown once for each site.
+
+![screenshot of notification](https://raw.github.com/adam-p/breached/master/assets/screenshot2.png)
+
 ## TODO
 
 * Domain mapping. Like, `yahoo.ca` should be considered the same as `yahoo.com` when looking for breaches.
