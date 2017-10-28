@@ -16,24 +16,18 @@ chrome.tabs.onUpdated.addListener(tabUpdated);
  */
 function tabUpdated(tabId, changeInfo, tab) {
   if (changeInfo.status === 'loading') {
-    // Initially disable the button.
-    chrome.browserAction.disable(tabId);
+    // Initially hide the button.
+    chrome.pageAction.hide(tabId);
 
     lookUpURL(tab.url, breaches => {
       if (breaches && breaches.length > 0) {
-        // There are breaches! Enable the button.
-        chrome.browserAction.setTitle({title: 'Breached!', tabId: tabId});
-        chrome.browserAction.setBadgeText({text: String(breaches.length), tabId: tabId});
-        chrome.browserAction.setBadgeBackgroundColor({color: '#FF0000', tabId: tabId})
-        chrome.browserAction.enable(tabId);
-
+        // There are breaches! Show the button and notification.
+        chrome.pageAction.show(tabId);
         showNotification(breaches);
       }
       else {
         // No breaches.
-        chrome.browserAction.setTitle({title: 'Not Breached', tabId: tabId});
-        chrome.browserAction.setBadgeText({text: '', tabId: tabId});
-        chrome.browserAction.disable(tabId);
+        chrome.pageAction.hide(tabId);
       }
     });
 
@@ -83,17 +77,23 @@ function showNotification(breaches) {
 
     let message = '';
     if (breaches.length === 1) {
-      message = `This site was breached once, with ${totalPwned.toLocaleString()} accounts pwned.\n\nClick here or on the toolbar button for more information.`;
+      message = `1 breach, ${totalPwned.toLocaleString()} accounts pwned.\nClick here or on the button for more info.`;
     }
     else {
-      message = `This site was breached ${breaches.length} times, with ${totalPwned.toLocaleString()} accounts pwned.\n\nClick here or on the toolbar button for more information.`;
+      message = `${breaches.length} breaches, ${totalPwned.toLocaleString()} accounts pwned.\nClick here or on the button for more info.`;
+    }
+
+    let contextMessage = null;
+    // Notifications on MacOS are very small, so we won't use a context message there.
+    if (navigator.userAgent.indexOf('Macintosh') < 0) {
+      contextMessage = 'Data from haveibeenpwned.com';
     }
 
     let opt = {
       type: 'basic',
       title: `${breaches[0]['Domain']} has breach history`,
       message: message,
-      contextMessage: 'Data from haveibeenpwned.com',
+      contextMessage: contextMessage,
       iconUrl: '/icons/icon64.png'
     };
     chrome.notifications.create(breaches[0]['Name'], opt);
@@ -209,6 +209,3 @@ function messageListener(request, sender, responseCallback) {
 
   return false;
 }
-
-// Disable immediately, until tabs start loading.
-chrome.browserAction.disable();

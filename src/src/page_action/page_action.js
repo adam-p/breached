@@ -4,6 +4,8 @@
  */
 
 $(() => {
+  "use strict";
+
   chrome.runtime.sendMessage({action: 'siteInfo'}, response => {
     if (!response || response.breaches.length === 0) {
       return;
