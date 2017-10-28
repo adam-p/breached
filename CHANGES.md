@@ -4,7 +4,7 @@ Change Log
 2017-10-28: v1.2.0
 ------------------
 
-* Switched from browser action to page action. This was prompted by a review from use [tulirebane](https://addons.mozilla.org/en-US/firefox/addon/breached/reviews/940746/). Note that this will result in no visual changes in Chrome, but it will in Firefox. For discussion of page actions versus browser actions, check out this [blog post](http://crypti.cc/blog/2013/03/24/pageaction-interaction) (that I'll update with recent thoughts and discoveries).
+* Switched from browser action to page action. This was prompted by a review from user [tulirebane](https://addons.mozilla.org/en-US/firefox/addon/breached/reviews/940746/). Note that this will result in no visual changes in Chrome, but it will in Firefox. For discussion of page actions versus browser actions, check out this [blog post](http://crypti.cc/blog/2013/03/24/pageaction-interaction) (that I'll update with recent thoughts and discoveries).
 
 * Made the notification text more concise. On MacOS the notifications are very tight for space.
 
