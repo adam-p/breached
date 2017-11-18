@@ -1,6 +1,14 @@
 Change Log
 ==========
 
+2017-11-18: v1.2.1
+------------------
+
+* Fixed bug [#2](https://github.com/adam-p/breached/issues/2): Some breach entries don't have a 'Domain' set, but do reference one or more domains. They will now be tracked as well. Thanks to [Madis](https://github.com/Madis0) for reporting it.
+
+* Fixed bug: Suppression of multiple notifications for a single domain may not have worked in all cases.
+
+
 2017-10-28: v1.2.0
 ------------------
 
