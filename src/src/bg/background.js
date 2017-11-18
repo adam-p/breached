@@ -120,16 +120,44 @@ function updateDB() {
 
     console.log('Updating breach DB');
 
+    //
     // Update the DB.
-    $.getJSON('https://haveibeenpwned.com/api/v2/breaches', data => {
+    //
+
+    // There are some entries in the breach data that relate to multiple domains,
+    // but have no value in the 'Domain' field. We have some local domain maps
+    // to capture that data.
+    let overridePromise = $.getJSON(chrome.runtime.getURL('data/domain_overrides.json'));
+    // Fetch the HIBP breach data.
+    let breachPromise = $.getJSON('https://haveibeenpwned.com/api/v2/breaches');
+
+    jQuery.when(overridePromise, breachPromise).then((overrideResponse, breachResponse) => {
+      let [overrideData] = overrideResponse;
+      let [breachData] = breachResponse;
+
       // We're going to store breaches keyed on domain, so they're easier to look up.
       // A breach may have no domain. Multiple breaches may have the same domain.
       // Our structure:
       //  {'example.com': [breach1, breach2, ...], ...}
-      var dbObj = {};
+      let dbObj = {};
 
-      for (let i = data.length-1; i >= 0; i--) {
-        let domain = data[i]['Domain'];
+      for (let i = breachData.length-1; i >= 0; i--) {
+        let name = breachData[i]['Name'];
+        if (overrideData[name]) {
+          for (let domain of overrideData[name]) {
+            if (!dbObj[domain]) {
+              dbObj[domain] = [];
+            }
+
+            // We're going to alter the Domain field, so we need to copy the object.
+            let obj = Object.assign({}, breachData[i]);
+            obj['Domain'] = domain;
+
+            dbObj[domain].push(obj);
+          }
+        }
+
+        let domain = breachData[i]['Domain'];
         if (!domain) {
           continue;
         }
@@ -138,7 +166,7 @@ function updateDB() {
           dbObj[domain] = [];
         }
 
-        dbObj[domain].push(data[i]);
+        dbObj[domain].push(breachData[i]);
       }
 
       dbObj['dbTimestamp'] = new Date().getTime();
