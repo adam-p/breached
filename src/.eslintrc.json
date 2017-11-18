@@ -35,7 +35,10 @@
         "camelcase": "error",
         "capitalized-comments": [
             "error",
-            "always"
+            "always",
+            {
+                "ignoreConsecutiveComments": true
+            }
         ],
         "class-methods-use-this": "error",
         "comma-dangle": "error",

@@ -57,17 +57,25 @@ function showNotification(breaches) {
     return;
   }
 
-  // We only want to show a notification once for each affected domain, unless the breach info changes for it.
+  // We only want to show a notification once for each affected domain, unless
+  // the breach info changes for it. This assumes that the HIBP won't change
+  // the breach infor a domain while keeping the count the same (that is, add
+  // a breach and remove a breach at the same time).
   let notificationKey = `${breaches[0]['Domain']}_${breaches.length}`;
+
   chrome.storage.local.get('notifications', res => {
-    if (res.notifications && res.notifications[notificationKey]) {
+    res.notifications = res.notifications || {};
+
+    if (res.notifications[notificationKey]) {
       // We've already shown a notification for this domain and breach state.
       return;
     }
 
     // Flag that we've shown this notification.
-    res[notificationKey] = true;
-    chrome.storage.local.set({notifications: res});
+    res.notifications[notificationKey] = true;
+
+    // Save it.
+    chrome.storage.local.set(res);
 
     // Show the notification.
     let totalPwned = 0;
