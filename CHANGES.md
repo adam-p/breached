@@ -1,6 +1,16 @@
 Change Log
 ==========
 
+2017-11-19: v1.2.3
+------------------
+
+* Improve display of breach info (page action popup) on Firefox Android. Thanks to [Madis](https://github.com/Madis0), again.
+
+2017-11-19: v1.2.2
+------------------
+
+* Fix issue [#3](https://github.com/adam-p/breached/issues/3): Enable for Firefox on Android.
+
 2017-11-18: v1.2.1
 ------------------
 
