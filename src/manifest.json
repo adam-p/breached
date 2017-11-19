@@ -1,6 +1,6 @@
 {
   "name": "Breached",
-  "version": "1.2.3",
+  "version": "1.2.4",
   "manifest_version": 2,
   "description": "Find out which sites you're visiting have been pwned, using the haveibeenpwned.com database",
   "homepage_url": "https://github.com/adam-p/breached",
