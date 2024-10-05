@@ -16,18 +16,18 @@ chrome.tabs.onUpdated.addListener(tabUpdated);
  */
 function tabUpdated(tabId, changeInfo, tab) {
   if (changeInfo.status === 'loading') {
-    // Initially hide the button.
-    chrome.pageAction.hide(tabId);
+    // Initially disable the button.
+    chrome.action.disable(tabId);
 
     lookUpURL(tab.url, breaches => {
       if (breaches && breaches.length > 0) {
-        // There are breaches! Show the button and notification.
-        chrome.pageAction.show(tabId);
+        // There are breaches! Enable the button and notification.
+        chrome.action.enable(tabId);
         showNotification(breaches);
       }
       else {
         // No breaches.
-        chrome.pageAction.hide(tabId);
+        chrome.action.disable(tabId);
       }
     });
 
@@ -127,14 +127,11 @@ function updateDB() {
     // There are some entries in the breach data that relate to multiple domains,
     // but have no value in the 'Domain' field. We have some local domain maps
     // to capture that data.
-    let overridePromise = $.getJSON(chrome.runtime.getURL('data/domain_overrides.json'));
+    let overridePromise = fetch(chrome.runtime.getURL('data/domain_overrides.json')).then(response => response.json());
     // Fetch the HIBP breach data.
-    let breachPromise = $.getJSON('https://haveibeenpwned.com/api/v2/breaches');
+    let breachPromise = fetch('https://haveibeenpwned.com/api/v2/breaches', {headers:{"Content-Type":"application/json"}}).then(response => response.json());
 
-    jQuery.when(overridePromise, breachPromise).then((overrideResponse, breachResponse) => {
-      let [overrideData] = overrideResponse;
-      let [breachData] = breachResponse;
-
+    Promise.all([overridePromise, breachPromise]).then(([overrideData, breachData]) => {
       // We're going to store breaches keyed on domain, so they're easier to look up.
       // A breach may have no domain. Multiple breaches may have the same domain.
       // Our structure:
